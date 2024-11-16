@@ -9,7 +9,7 @@
       margin: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      background: #222;
+      background-color: #121212;
       color: white;
     }
     canvas {
@@ -21,35 +21,45 @@
       left: 10px;
       font-size: 20px;
     }
-    #end {
+    #end-screen {
       display: none;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
       text-align: center;
+      color: white;
+    }
+    #restart-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div id="score">Очки: 0</div>
   <canvas></canvas>
-  <div id="end">
-    <h1>Игра окончена!</h1>
+  <div id="end-screen">
+    <h1>Игра окончена</h1>
     <p id="final-score"></p>
-    <button id="restart">Начать заново</button>
+    <button id="restart-btn">Начать заново</button>
   </div>
   <script>
     // Telegram Game API Initialization
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Разворачиваем приложение на весь экран
+    tg.expand(); // Разворачиваем игру на весь экран
 
-    const canvas = document.querySelector('canvas');
-    const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score');
-    const endEl = document.getElementById('end');
-    const finalScoreEl = document.getElementById('final-score');
-    const restartBtn = document.getElementById('restart');
+    const canvas = document.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score");
+    const endScreen = document.getElementById("end-screen");
+    const finalScoreEl = document.getElementById("final-score");
+    const restartBtn = document.getElementById("restart-btn");
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -59,7 +69,7 @@
     let isGameOver = false;
 
     function drawHacker() {
-      ctx.fillStyle = 'lime';
+      ctx.fillStyle = "lime";
       ctx.beginPath();
       ctx.arc(hacker.x, hacker.y, hacker.size, 0, Math.PI * 2);
       ctx.fill();
@@ -70,7 +80,7 @@
       hacker.y = Math.random() * (canvas.height - hacker.size * 2) + hacker.size;
     }
 
-    canvas.addEventListener('click', (e) => {
+    canvas.addEventListener("click", (e) => {
       if (isGameOver) return;
 
       const dist = Math.sqrt(
@@ -95,15 +105,15 @@
     function endGame() {
       isGameOver = true;
       finalScoreEl.textContent = `Ваш счет: ${score}`;
-      endEl.style.display = 'block';
-      tg.sendData(score.toString()); // Отправляем счет обратно в бот
+      endScreen.style.display = "block";
+      tg.sendData(score.toString()); // Отправка результата в Telegram
     }
 
-    restartBtn.addEventListener('click', () => {
+    restartBtn.addEventListener("click", () => {
       isGameOver = false;
       score = 0;
       scoreEl.textContent = `Очки: ${score}`;
-      endEl.style.display = 'none';
+      endScreen.style.display = "none";
       spawnHacker();
       gameLoop();
     });
