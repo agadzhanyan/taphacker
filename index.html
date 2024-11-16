@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тапай Хакера</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: white;
+    }
+    canvas {
+      display: block;
+    }
+    #score {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+    }
+    #end {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">Очки: 0</div>
+  <canvas></canvas>
+  <div id="end">
+    <h1>Игра окончена!</h1>
+    <p id="final-score"></p>
+    <button id="restart">Начать заново</button>
+  </div>
+  <script>
+    // Telegram Game API Initialization
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Разворачиваем приложение на весь экран
+
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const endEl = document.getElementById('end');
+    const finalScoreEl = document.getElementById('final-score');
+    const restartBtn = document.getElementById('restart');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let score = 0;
+    let hacker = { x: 100, y: 100, size: 50 };
+    let isGameOver = false;
+
+    function drawHacker() {
+      ctx.fillStyle = 'lime';
+      ctx.beginPath();
+      ctx.arc(hacker.x, hacker.y, hacker.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function spawnHacker() {
+      hacker.x = Math.random() * (canvas.width - hacker.size * 2) + hacker.size;
+      hacker.y = Math.random() * (canvas.height - hacker.size * 2) + hacker.size;
+    }
+
+    canvas.addEventListener('click', (e) => {
+      if (isGameOver) return;
+
+      const dist = Math.sqrt(
+        (e.clientX - hacker.x) ** 2 + (e.clientY - hacker.y) ** 2
+      );
+      if (dist < hacker.size) {
+        score++;
+        scoreEl.textContent = `Очки: ${score}`;
+        spawnHacker();
+      } else {
+        endGame();
+      }
+    });
+
+    function gameLoop() {
+      if (isGameOver) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawHacker();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+      isGameOver = true;
+      finalScoreEl.textContent = `Ваш счет: ${score}`;
+      endEl.style.display = 'block';
+      tg.sendData(score.toString()); // Отправляем счет обратно в бот
+    }
+
+    restartBtn.addEventListener('click', () => {
+      isGameOver = false;
+      score = 0;
+      scoreEl.textContent = `Очки: ${score}`;
+      endEl.style.display = 'none';
+      spawnHacker();
+      gameLoop();
+    });
+
+    spawnHacker();
+    gameLoop();
+  </script>
+</body>
+</html>
