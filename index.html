@@ -99,6 +99,14 @@
     <button id="restart-btn">Начать заново</button>
   </div>
   <script>
+    if (!window.Telegram || !window.Telegram.WebApp) {
+    alert("Откройте игру через Telegram.");
+} else {
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Развернуть на весь экран
+}
+
+    
     const gameContainer = document.getElementById("game-container");
     const scoreEl = document.getElementById("score");
     const timerEl = document.getElementById("timer");
